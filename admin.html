@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>投顧戰績實驗室 — 管理面板</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#16161f;--mut:#6f7680;--line:#e7e7ea;--bgs:#f7f7f8;--up:#1a8754;--dn:#c0392b}
+body{font-family:'PingFang TC','Microsoft JhengHei',system-ui,sans-serif;background:#fff;color:var(--ink);line-height:1.65}
+h1,h2,.brand{font-family:'Noto Serif TC','Songti TC',serif}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:1140px;margin:0 auto;padding:0 22px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:26px;height:56px}
+.brand{font-weight:900;font-size:1.02rem;white-space:nowrap}
+nav a{color:var(--mut);text-decoration:none;font-size:.88rem}
+nav a:hover{color:var(--ink)}
+nav .sp{flex:1}
+.hero{border-bottom:1px solid var(--line);padding:44px 0 30px}
+.hero h1{font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:900;margin-bottom:10px}
+.hero p{color:var(--mut);max-width:680px;font-size:.92rem}
+.freeze{display:inline-block;margin-top:12px;font-size:.78rem;color:var(--mut);background:var(--bgs);border:1px solid var(--line);border-radius:8px;padding:5px 12px}
+section{padding:34px 0}
+h2{font-size:1.15rem;font-weight:900;margin-bottom:6px}
+.sub{color:var(--mut);font-size:.84rem;margin-bottom:18px}
+/* 新增表單 */
+.addbar{display:flex;gap:10px;flex-wrap:wrap;max-width:760px}
+.addbar input{flex:1;min-width:200px;border:1px solid var(--line);border-radius:9px;padding:10px 14px;font-size:.9rem;font-family:inherit}
+.addbar input:focus{outline:none;border-color:var(--ink)}
+.addbar .nm{flex:0 1 180px}
+button{font-family:inherit;cursor:pointer}
+.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:9px;padding:10px 20px;font-size:.88rem;font-weight:600;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn.ghost{background:#fff;color:var(--ink)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.mini{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:7px;padding:4px 12px;font-size:.76rem}
+.mini:hover{border-color:var(--ink)}
+.mini.danger:hover{border-color:var(--dn);color:var(--dn)}
+.mini:disabled{opacity:.3;cursor:not-allowed}
+/* 名冊表 */
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{font-size:.72rem;color:var(--mut);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--ink)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:hover td{background:var(--bgs)}
+.tag{display:inline-block;font-size:.68rem;border:1px solid var(--line);border-radius:6px;padding:1px 8px;color:var(--mut)}
+.tag.dyn{border-color:var(--up);color:var(--up)}
+.name-cell{font-weight:600}
+.mut{color:var(--mut)}
+/* job 面板 */
+.jobcard{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.jobhead{display:flex;align-items:center;gap:12px;padding:13px 18px;background:var(--bgs);border-bottom:1px solid var(--line);font-size:.85rem}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dot.run{background:#e6a817;animation:pulse 1.2s infinite}
+.dot.ok{background:var(--up)}
+.dot.fail{background:var(--dn)}
+@keyframes pulse{50%{opacity:.35}}
+.joblog{background:#101216;color:#c7ccd4;font:.74rem/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;padding:14px 18px;height:320px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+.jobhead .sp{flex:1}
+footer{border-top:1px solid var(--line);padding:22px 0 40px;font-size:.75rem;color:var(--mut)}
+</style></head><body>
+
+<nav><div class="wrap">
+  <span class="brand">投顧戰績實驗室 · 管理面板</span>
+  <span class="sp"></span>
+  <a href="/">← 回主站</a>
+</div></nav>
+
+<div class="hero"><div class="wrap">
+  <h1>分析師管理</h1>
+  <p>貼上 YouTube 頻道連結即可新增分析師：自動抓逐字稿、LLM 抽取、統一引擎評分、回歸驗證後更新網站。所有規則對每個人同一把尺，決策寫入審計卡。</p>
+  <span class="freeze">⏸ 回測凍結日 <b id="freeze-date" class="num">—</b>：凍結日後的新喊盤會入紀錄但<b>不改計分</b>（刻意設計，防止邊跑邊改基準）</span>
+</div></div>
+
+<section><div class="wrap">
+  <h2>新增分析師</h2>
+  <p class="sub">支援 @handle 或頻道網址。門檻：市場相關影片 ≥ 20 部且有字幕，不足會自動排除並寫審計卡。全程約 5–15 分鐘。</p>
+  <div class="addbar">
+    <input id="add-url" placeholder="https://www.youtube.com/@頻道 或 @handle">
+    <input id="add-name" class="nm" placeholder="顯示名（可留空）">
+    <button class="btn" id="btn-add" onclick="doAdd()">新增並重建</button>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <h2>名冊</h2>
+  <p class="sub">內建 13 位寫死於程式（唯讀）；由本面板／add_analyst 新增者標示為「動態」，可更新或移除。移除為軟移除：資料檔保留，重新新增即復原。</p>
+  <table id="roster"><thead><tr>
+    <th>分析師</th><th>市場</th><th>類型</th><th>來源</th><th>納入筆數</th><th>逐字稿更新</th><th style="text-align:right">操作</th>
+  </tr></thead><tbody id="roster-body"><tr><td colspan="7" class="mut">載入中…</td></tr></tbody></table>
+  <p style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap" id="rebuild-bar">
+    <button class="btn ghost" id="btn-rebuild" onclick="doRebuild('all')">全站重建（引擎 → 網站 → 回歸驗證）</button>
+    <button class="btn ghost rb-step" onclick="doRebuild('engine')" title="只重算 calendar_multi.json（約 2–3 分鐘）；網站不會變，之後要再建站">只跑引擎</button>
+    <button class="btn ghost rb-step" onclick="doRebuild('site')" title="只從現有 calendar_multi.json 重生 index.html（數秒）；改版面/文案後用這個">只建網站</button>
+    <button class="btn ghost rb-step" onclick="doRebuild('verify')" title="只跑回歸驗證，比對 13 位 headline 與基準">只驗證</button>
+    <button class="btn" onclick="doDeploy()" title="把目前的 index.html 推上 GitHub Pages（第一次會自動建 repo；需先 gh auth login）">🚀 發布上線</button>
+  </p>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <h2>任務狀態</h2>
+  <p class="sub">同時只跑一個任務（防止併發重建互相覆寫）。回歸驗證失敗時不會發布，錯誤會顯示在下方。</p>
+  <div class="jobcard">
+    <div class="jobhead"><span class="dot" id="job-dot"></span><span id="job-name" class="mut">目前沒有任務</span><span class="sp"></span><span id="job-rc" class="mut"></span></div>
+    <div class="joblog" id="job-log">（任務輸出會即時顯示在這裡）</div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">僅限本機（localhost）存取；此頁不會部署到公開網站。引擎、抽取與驗證邏輯與 CLI 完全相同（add_analyst.py / manage.py）。</div></footer>
+
+<script>
+var _running=false;
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function post(url,body){return fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})}).then(function(r){if(r.status===409){alert('已有任務進行中，等它跑完再操作。');throw 0;}return r.json();});}
+
+function loadRoster(){
+  fetch('/api/admin/roster').then(function(r){return r.json();}).then(function(d){
+    document.getElementById('freeze-date').textContent=d.backtest_end;
+    var tb=document.getElementById('roster-body'),h='';
+    d.roster.forEach(function(a){
+      var dis=_running?'disabled':'';
+      var ops='<button class="mini" title="只重算這位的引擎數字（其他人沿用快取，約 15 秒）→ 建站 → 回歸" onclick="doRecalc(\''+esc(a.name)+'\')" '+dis+'>重算</button>';
+      if(a.dynamic){
+        ops+=' <button class="mini" title="重抓逐字稿＋重抽取（增量）後全站重建" onclick="doRefresh(\''+esc(a.name)+'\')" '+dis+'>更新</button>'
+           +' <button class="mini danger" onclick="doRemove(\''+esc(a.name)+'\')" '+dis+'>移除</button>';
+      }
+      h+='<tr><td class="name-cell">'+esc(a.name)+(a.in_engine?'':' <span class="tag">未入引擎</span>')+'</td>'
+        +'<td>'+esc(a.market||'—')+'</td><td>'+esc(a.label||'—')+'</td>'
+        +'<td><span class="tag'+(a.dynamic?' dyn':'')+'">'+(a.dynamic?'動態':'內建')+'</span></td>'
+        +'<td class="num">'+(a.n_calls!=null?a.n_calls.toLocaleString():'—')+'</td>'
+        +'<td class="mut num">'+esc(a.transcripts_mtime||'—')+'</td>'
+        +'<td style="text-align:right">'+ops+'</td></tr>';
+    });
+    tb.innerHTML=h||'<tr><td colspan="7" class="mut">名冊為空</td></tr>';
+  }).catch(function(){document.getElementById('roster-body').innerHTML='<tr><td colspan="7" class="mut">載入失敗（server 沒開？）</td></tr>';});
+}
+
+function doAdd(){
+  var u=document.getElementById('add-url').value.trim();
+  if(!u){alert('先貼頻道連結或 @handle');return;}
+  var n=document.getElementById('add-name').value.trim()||null;
+  post('/api/admin/add',{url:u,name:n}).then(function(){document.getElementById('add-url').value='';document.getElementById('add-name').value='';});
+}
+function doDeploy(){if(confirm('把目前的 index.html 發布到公開網站（GitHub Pages）？'))post('/api/admin/deploy');}
+function doRecalc(n){post('/api/admin/recalc',{name:n});}
+function doRefresh(n){post('/api/admin/refresh',{name:n});}
+function doRemove(n){if(confirm('移除「'+n+'」？（軟移除，資料檔保留，之後重新新增即復原；移除後全站重建）'))post('/api/admin/remove',{name:n});}
+function doRebuild(step){post('/api/admin/rebuild',{step:step||'all'});}
+
+function pollJob(){
+  fetch('/api/admin/job').then(function(r){return r.json();}).then(function(j){
+    var dot=document.getElementById('job-dot'),nm=document.getElementById('job-name'),rc=document.getElementById('job-rc'),lg=document.getElementById('job-log');
+    var was=_running;_running=j.running;
+    dot.className='dot '+(j.running?'run':(j.rc===0?'ok':(j.rc==null?'':'fail')));
+    nm.textContent=j.name?((j.running?'進行中：':'上次任務：')+j.name):'目前沒有任務';
+    rc.textContent=j.running?'':(j.rc==null?'':(j.rc===0?'✅ 完成':'✗ 失敗（exit '+j.rc+'）'));
+    if(j.log&&j.log.length){var atBottom=lg.scrollTop+lg.clientHeight>=lg.scrollHeight-30;lg.textContent=j.log.join('\n');if(atBottom)lg.scrollTop=lg.scrollHeight;}
+    document.getElementById('btn-add').disabled=j.running;
+    document.querySelectorAll('#rebuild-bar .btn').forEach(function(b){b.disabled=j.running;});
+    if(was&&!j.running)loadRoster();   // 任務剛結束 → 名冊可能變了
+  }).catch(function(){});
+}
+loadRoster();
+setInterval(pollJob,1500);pollJob();
+</script>
+</body></html>

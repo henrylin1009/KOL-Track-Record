@@ -1,0 +1,128 @@
+{
+  "郭哲榮": {
+    "excess_ann": 2.6,
+    "follow_end": 289.8,
+    "mkt_end": 214.9,
+    "hit_rate": 57.6,
+    "beat_mkt": 50.7,
+    "max_drawdown": -38.3,
+    "direction_hit_rate": 77.1
+  },
+  "江國中": {
+    "excess_ann": 2.9,
+    "follow_end": 275.3,
+    "mkt_end": 226.1,
+    "hit_rate": 57.7,
+    "beat_mkt": 48.7,
+    "max_drawdown": -28.7,
+    "direction_hit_rate": 75.4
+  },
+  "謝晨彥": {
+    "excess_ann": -0.4,
+    "follow_end": 196.3,
+    "mkt_end": 218.1,
+    "hit_rate": 56.0,
+    "beat_mkt": 48.2,
+    "max_drawdown": -28.8,
+    "direction_hit_rate": 68.2
+  },
+  "陳俊言": {
+    "excess_ann": 8.0,
+    "follow_end": 198.7,
+    "mkt_end": 167.1,
+    "hit_rate": 68.0,
+    "beat_mkt": 57.6,
+    "max_drawdown": -12.7,
+    "direction_hit_rate": 93.0
+  },
+  "張貽程": {
+    "excess_ann": -3.0,
+    "follow_end": 158.4,
+    "mkt_end": 198.4,
+    "hit_rate": 55.6,
+    "beat_mkt": 45.7,
+    "max_drawdown": -43.9,
+    "direction_hit_rate": 78.7
+  },
+  "何基鼎": {
+    "excess_ann": 0.7,
+    "follow_end": 150.7,
+    "mkt_end": 157.9,
+    "hit_rate": 53.9,
+    "beat_mkt": 54.2,
+    "max_drawdown": -33.9,
+    "direction_hit_rate": 64.2
+  },
+  "林鈺凱": {
+    "excess_ann": 1.3,
+    "follow_end": 233.3,
+    "mkt_end": 216.2,
+    "hit_rate": 55.8,
+    "beat_mkt": 49.3,
+    "max_drawdown": -36.2,
+    "direction_hit_rate": 75.1
+  },
+  "林漢偉": {
+    "excess_ann": 0.0,
+    "follow_end": 222.3,
+    "mkt_end": 228.1,
+    "hit_rate": 58.9,
+    "beat_mkt": 50.0,
+    "max_drawdown": -37.9,
+    "direction_hit_rate": 75.2
+  },
+  "陳昆仁": {
+    "excess_ann": 3.1,
+    "follow_end": 199.0,
+    "mkt_end": 207.0,
+    "hit_rate": 54.4,
+    "beat_mkt": 48.9,
+    "max_drawdown": -47.1,
+    "direction_hit_rate": 63.8
+  },
+  "鐘崑禎": {
+    "excess_ann": 4.3,
+    "follow_end": 263.2,
+    "mkt_end": 203.8,
+    "hit_rate": 60.0,
+    "beat_mkt": 55.1,
+    "max_drawdown": -22.3,
+    "direction_hit_rate": 80.7
+  },
+  "股癌（謝孟恭）": {
+    "excess_ann": 2.0,
+    "follow_end": 452.9,
+    "mkt_end": 281.4,
+    "hit_rate": 53.2,
+    "beat_mkt": 47.8,
+    "max_drawdown": -51.8,
+    "direction_hit_rate": 51.2
+  },
+  "鄭博見 DAC": {
+    "excess_ann": -0.6,
+    "follow_end": 134.2,
+    "mkt_end": 157.6,
+    "hit_rate": 56.9,
+    "beat_mkt": 0.0,
+    "max_drawdown": -13.7,
+    "direction_hit_rate": 27.3
+  },
+  "吳昌華": {
+    "excess_ann": -1.8,
+    "follow_end": 112.0,
+    "mkt_end": 129.5,
+    "hit_rate": 50.9,
+    "beat_mkt": 0.0,
+    "max_drawdown": -16.5,
+    "direction_hit_rate": 50.5
+  },
+  "90後創業家掃地僧 - Videos": {
+    "excess_ann": -0.5,
+    "follow_end": 173.0,
+    "mkt_end": 188.6,
+    "hit_rate": 52.9,
+    "beat_mkt": 0.0,
+    "max_drawdown": -21.4,
+    "direction_hit_rate": 41.8
+  }
+}

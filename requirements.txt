@@ -1,0 +1,24 @@
+# 台股板塊輪動回測骨架 — 依賴套件
+# 安裝：python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+
+# 資料 / 計量
+FinMind>=1.9.10
+tqdm
+pandas
+numpy
+scipy
+statsmodels
+matplotlib
+
+# LLM + API
+openai          # DeepSeek 相容 OpenAI SDK
+python-dotenv   # 讀取 .env
+
+# YouTube
+youtube-transcript-api
+requests
+
+# Web/API Backend
+fastapi
+uvicorn
+pydantic

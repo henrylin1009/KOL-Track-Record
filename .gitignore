@@ -1,0 +1,20 @@
+# Secrets — never commit
+.env
+*.key
+
+# Large data / caches (regenerated locally)
+*.pkl
+*.db
+*.csv
+data_cache/
+archive/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS / misc
+.DS_Store
+*.log
+*.png

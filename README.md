@@ -17,7 +17,7 @@ answer is *no, not a single one of them beats the market once you account for lu
 > non-English corpus end to end. The screenshots below are English renders of the same UI;
 > analyst names are left in Chinese, as they are proper names.*
 
-A rule-based backtesting and statistical-inference engine that evaluates **7,947 stock
+A rule-based backtesting and statistical-inference engine that evaluates **18,160 stock
 calls** made by **14 Taiwanese finance influencers (KOLs)** on YouTube, and asks one
 honest question of each: *once you correct for multiple testing, does any of them have
 demonstrable skill?*
@@ -79,7 +79,7 @@ and a multiple-comparisons correction so that testing 14 people doesn't manufact
 | | |
 |---|---|
 | Analysts evaluated | 14 |
-| Stock calls backtested | 7,947 |
+| Stock calls backtested | 18,160 |
 | YouTube transcripts indexed | ~4,500 |
 | Raw "significant" analysts | several |
 | **Survive Romano–Wolf correction** | **0** |

@@ -112,12 +112,9 @@ live deployment:
 - **AWS EC2** (full app) — the same site plus the two features a static host can't serve:
   the RAG Q&A agent and an interactive SQL playground.
 
-**Data layer — S3 + Athena.** The 94,177-row per-call backtest table (`export_calls.py`)
-is stored as Parquet in **Amazon S3** and queried with SQL through **Amazon Athena**
-(a serverless, scan-priced query engine over S3). A public **SQL playground** (`/sql`,
-served by `sql.html` + `athena_query.py`) lets visitors run their own `SELECT` queries
-against the data live — with read-only guardrails (SELECT-only, auto-`LIMIT`, per-IP
-rate limiting).
+**Data layer — S3 + Athena.** Every call is flattened across five holding horizons into a
+94,177-row table (`export_calls.py`), stored as Parquet in **Amazon S3** and queried with
+SQL through **Amazon Athena** (a serverless, scan-priced query engine over S3).
 
 **Compute — EC2 + IAM.** `server.py` (FastAPI + the vector-RAG Q&A agent) runs on an
 EC2 instance under `systemd`. The instance accesses Athena through an **IAM role**
@@ -132,8 +129,9 @@ local dev  ──git push──▶  GitHub (source + Pages, permanent)
                     S3 (Parquet) ◀──Athena SQL── /sql playground
 ```
 
-**SQL playground** — visitors run their own `SELECT` queries against the backtest data,
-served live from S3 through Athena (read-only guardrails, results in ~1s):
+**SQL playground** (`/sql`, served by `sql.html` + `athena_query.py`) — visitors run their
+own `SELECT` queries against the data live, with read-only guardrails (SELECT-only,
+auto-`LIMIT`, per-IP rate limiting):
 
 ![SQL playground](docs/assets/en/5_sql.png)
 

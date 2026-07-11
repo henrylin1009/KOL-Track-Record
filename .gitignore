@@ -18,3 +18,4 @@ __pycache__/
 .DS_Store
 *.log
 *.png
+!docs/assets/*.png   # 例外：README 用的成品截圖要進版控

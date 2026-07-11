@@ -132,6 +132,11 @@ local dev  ──git push──▶  GitHub (source + Pages, permanent)
                     S3 (Parquet) ◀──Athena SQL── /sql playground
 ```
 
+**SQL playground** — visitors run their own `SELECT` queries against the backtest data,
+served live from S3 through Athena (read-only guardrails, results in ~1s):
+
+![SQL playground](docs/assets/en/5_sql.png)
+
 ## Repository layout
 
 ```

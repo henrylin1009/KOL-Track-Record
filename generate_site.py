@@ -1448,12 +1448,17 @@ tr.ov-row:hover td{{background:var(--bgs)}}
 <nav><div class="wrap">
   <span class="brand">投顧戰績實驗室</span>
   <span class="sp"></span>
+  <a href="/sql" id="nav-sql" class="nav-tab" style="text-decoration:none;border:1px solid var(--ink);border-radius:8px;padding:5px 13px;color:var(--ink);font-weight:600">SQL 遊樂場</a>
   <a href="/admin" id="nav-admin" class="nav-tab" style="display:none;text-decoration:none">⚙ 管理</a>
 </div></nav>
 <script>
 // 管理鈕只在本機（localhost 開發模式）顯示；部署到公開站時自動隱藏
 if(location.hostname==='localhost'||location.hostname==='127.0.0.1'){{
   var _na=document.getElementById('nav-admin');if(_na)_na.style.display='';
+}}
+// SQL 遊樂場需要後端（Athena）；GitHub Pages 靜態站沒有後端 → 自動隱藏，避免死連結
+if(location.hostname.indexOf('github.io')>=0){{
+  var _ns=document.getElementById('nav-sql');if(_ns)_ns.style.display='none';
 }}
 </script>
 

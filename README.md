@@ -99,6 +99,35 @@ Python · pandas / numpy · yfinance · LLM tool-calling (DeepSeek / Claude) for
 and Q&A · FastAPI (`server.py`) for the local Q&A backend · a static HTML site generator
 (`generate_site.py`) deployed to GitHub Pages.
 
+## Cloud deployment (AWS)
+
+The project runs in two tiers, keeping a permanent free tier alongside a full-featured
+live deployment:
+
+- **GitHub Pages** (permanent, static) — the leaderboard, analyst cards and charts.
+- **AWS EC2** (full app) — the same site plus the two features a static host can't serve:
+  the RAG Q&A agent and an interactive SQL playground.
+
+**Data layer — S3 + Athena.** The 94,177-row per-call backtest table (`export_calls.py`)
+is stored as Parquet in **Amazon S3** and queried with SQL through **Amazon Athena**
+(a serverless, scan-priced query engine over S3). A public **SQL playground** (`/sql`,
+served by `sql.html` + `athena_query.py`) lets visitors run their own `SELECT` queries
+against the data live — with read-only guardrails (SELECT-only, auto-`LIMIT`, per-IP
+rate limiting).
+
+**Compute — EC2 + IAM.** `server.py` (FastAPI + the vector-RAG Q&A agent) runs on an
+EC2 instance under `systemd`. The instance accesses Athena through an **IAM role**
+(no long-lived keys on the box). `push_to_ec2.py` is a one-command deploy: rsync the
+updated source and restart the service.
+
+```
+local dev  ──git push──▶  GitHub (source + Pages, permanent)
+     │
+     └──push_to_ec2.py──▶  EC2 (FastAPI + RAG + Athena SQL, live)
+                              │
+                    S3 (Parquet) ◀──Athena SQL── /sql playground
+```
+
 ## Repository layout
 
 ```
@@ -110,7 +139,10 @@ extract_decisions.py      # LLM extraction of buy/sell calls from transcripts
 extract_predictions.py    # LLM extraction of price predictions
 add_analyst.py            # one-command onboarding of a new analyst end-to-end
 generate_site.py          # builds the self-contained index.html
-ask_combined.py, server.py# natural-language Q&A agent + local API
+ask_combined.py, server.py# natural-language Q&A agent + API (RAG + Athena SQL)
+athena_query.py           # read-only Athena SQL runner (SELECT-only guardrails)
+export_calls.py           # flatten backtest results to Parquet for S3/Athena
+push_to_ec2.py            # one-command deploy to the EC2 live instance
 manage.py                 # admin/deploy CLI (rebuild, recalc, publish)
 calendar_multi.json       # single source of truth: all backtest results
 METHODOLOGY.md            # full methodology write-up

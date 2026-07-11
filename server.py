@@ -72,6 +72,42 @@ async def api_analysts():
     return ask_query.list_analysts()
 
 
+# ── 公開 SQL 遊樂場（訪客打 SQL → Athena，唯讀護欄 + 簡易限流）──
+class SqlRequest(BaseModel):
+    sql: str
+
+_sql_hits: dict = {}          # ip → [timestamps]（滑動視窗限流）
+_SQL_WINDOW = 60.0            # 秒
+_SQL_MAX = 20                 # 每 IP 每分鐘上限
+
+def _sql_rate_ok(ip: str) -> bool:
+    import time as _t
+    now = _t.time()
+    q = [t for t in _sql_hits.get(ip, []) if now - t < _SQL_WINDOW]
+    if len(q) >= _SQL_MAX:
+        _sql_hits[ip] = q
+        return False
+    q.append(now); _sql_hits[ip] = q
+    return True
+
+
+@app.post("/api/sql")
+async def api_sql(req: SqlRequest, request: Request):
+    """跑訪客 SQL（Athena，SELECT-only + 自動 LIMIT + 限流）。"""
+    import athena_query
+    ip = request.client.host if request.client else "?"
+    if not _sql_rate_ok(ip):
+        return JSONResponse(status_code=429, content={"error": "查詢太頻繁，請稍候再試（每分鐘上限 20 次）"})
+    try:
+        loop = asyncio.get_event_loop()
+        out = await loop.run_in_executor(None, lambda: athena_query.run_sql(req.sql))
+        return out
+    except athena_query.SqlError as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": f"查詢失敗：{e}"})
+
+
 # ── 管理面板（僅限本機：server 綁 0.0.0.0，admin 端點須擋非 localhost）──
 ROOT = os.path.dirname(__file__)
 
@@ -190,6 +226,12 @@ async def admin_rebuild(req: AdminRebuild, request: Request):
 
 
 # ── 靜態網站 ────────────────────────────────────────────────
+@app.get("/sql")
+async def sql_page():
+    """SQL 遊樂場頁（訪客用 Athena 查回測資料）。"""
+    return FileResponse(os.path.join(ROOT, "sql.html"), media_type="text/html")
+
+
 @app.get("/")
 async def index():
     """回傳生成好的 index.html。"""

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL 遊樂場 · 投顧戰績實驗室</title>
+<style>
+  :root{--ink:#16161f;--mut:#6f7680;--line:#e7e7ea;--bgs:#f7f7f8;--up:#1a8754;--dn:#c0392b}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);line-height:1.65;
+    font-family:'PingFang TC','Microsoft JhengHei',system-ui,sans-serif}
+  h1,h2{font-family:'Noto Serif TC','Songti TC',serif}
+  a{color:var(--ink);text-decoration:none}
+  /* nav 與主頁一致 */
+  nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:26px;height:56px;
+    max-width:960px;margin:0 auto;padding:0 20px}
+  .brand{font-weight:900;font-size:1.02rem;white-space:nowrap}
+  nav .sp{flex:1}
+  nav .nav-tab{color:var(--mut);font-size:.88rem}
+  nav .nav-tab:hover{color:var(--ink)}
+  .wrap-main{max-width:960px;margin:0 auto;padding:44px 20px 90px}
+  h1{font-size:clamp(1.7rem,4vw,2.6rem);font-weight:900;letter-spacing:.5px;margin:0 0 12px}
+  .sub{color:var(--mut);max-width:640px;margin:0 0 6px;font-size:.98rem}
+  .arch{font-size:.85rem;color:var(--mut);margin:0 0 4px}
+  .arch code{background:var(--bgs);padding:1px 6px;border-radius:5px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;font-size:.8rem}
+  .card{border:1px solid var(--line);border-radius:12px;padding:22px 22px 18px;margin:22px 0;background:#fff}
+  h2{font-size:1.15rem;margin:0 0 12px}
+  .examples{display:flex;flex-wrap:wrap;gap:9px;margin:2px 0 12px}
+  .chip{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:999px;
+    padding:6px 14px;font-size:.83rem;cursor:pointer;transition:.12s}
+  .chip:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+  textarea{width:100%;min-height:130px;border:1px solid var(--line);border-radius:10px;
+    padding:13px 15px;font-size:.85rem;resize:vertical;color:var(--ink);background:var(--bgs);
+    font-family:"SF Mono",Menlo,Consolas,monospace;line-height:1.5}
+  textarea:focus{outline:none;border-color:var(--ink);background:#fff}
+  .row{display:flex;align-items:center;gap:14px;margin-top:12px}
+  button.run{background:var(--ink);color:#fff;border:0;border-radius:9px;
+    padding:10px 26px;font-size:.9rem;font-weight:700;cursor:pointer;letter-spacing:.5px}
+  button.run:hover{opacity:.85}
+  button.run:disabled{opacity:.4;cursor:default}
+  .meta{font-size:.8rem;color:var(--mut);font-variant-numeric:tabular-nums}
+  .err{color:var(--dn);font-size:.86rem;margin-top:12px;white-space:pre-wrap}
+  .note{font-size:.8rem;color:var(--mut);margin-top:10px;line-height:1.7}
+  .tbl-wrap{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:10px;margin-top:14px}
+  table{border-collapse:collapse;width:100%;font-size:.84rem}
+  th,td{border-bottom:1px solid var(--line);padding:8px 12px;text-align:left;white-space:nowrap}
+  th{color:var(--mut);font-weight:600;background:var(--bgs);position:sticky;top:0;
+    font-variant-numeric:tabular-nums}
+  td{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="brand" href="/">投顧戰績實驗室</a>
+  <span class="sp"></span>
+  <a class="nav-tab" href="/">← 回總覽</a>
+</div></nav>
+
+<div class="wrap-main">
+  <h1>SQL 遊樂場</h1>
+  <p class="sub">用標準 SQL 直接查詢 94,177 筆分析師逐筆回測資料。</p>
+  <p class="arch">資料以 Parquet 存於 <code>AWS S3</code>，經 <code>Amazon Athena</code> 以 SQL 查詢。
+    唯讀護欄：僅允許 SELECT、自動 LIMIT、限流。</p>
+
+  <div class="card">
+    <h2>試試這些</h2>
+    <div class="examples" id="examples"></div>
+    <p class="note">欄位：analyst 分析師／date 喊盤日／ticker 標的／direction 看多空／
+      hold_days 持有天期／strat_ret 跟他報酬%／bench_ret 大盤%／excess_ret 超額%／
+      hit 命中(hit/miss/pending)／is_pending 是否未到期</p>
+  </div>
+
+  <div class="card">
+    <h2>自己來</h2>
+    <textarea id="sql" spellcheck="false">SELECT analyst,
+       COUNT(*) AS n_settled,
+       ROUND(100.0*SUM(CASE WHEN hit='hit' THEN 1 END)/COUNT(*),1) AS win_rate_pct,
+       ROUND(AVG(excess_ret),2) AS avg_excess
+FROM calls_flat
+WHERE hold_days=20 AND is_pending=false
+GROUP BY analyst
+HAVING COUNT(*)>=30
+ORDER BY win_rate_pct DESC</textarea>
+    <div class="row">
+      <button class="run" id="run" onclick="runSql()">執行查詢</button>
+      <span class="meta" id="meta"></span>
+    </div>
+    <div class="err" id="err"></div>
+    <div id="out"></div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = [
+  {label:"各分析師 20 日勝率排行", sql:
+`SELECT analyst,
+       COUNT(*) AS n_settled,
+       ROUND(100.0*SUM(CASE WHEN hit='hit' THEN 1 END)/COUNT(*),1) AS win_rate_pct,
+       ROUND(AVG(excess_ret),2) AS avg_excess
+FROM calls_flat
+WHERE hold_days=20 AND is_pending=false
+GROUP BY analyst
+HAVING COUNT(*)>=30
+ORDER BY win_rate_pct DESC`},
+  {label:"不同持有天期的勝率", sql:
+`SELECT hold_days,
+       ROUND(100.0*SUM(CASE WHEN hit='hit' THEN 1 END)/COUNT(*),1) AS win_rate_pct
+FROM calls_flat
+WHERE is_pending=false
+GROUP BY hold_days
+ORDER BY hold_days`},
+  {label:"看多 vs 看空誰準", sql:
+`SELECT direction,
+       COUNT(*) AS n,
+       ROUND(100.0*SUM(CASE WHEN hit='hit' THEN 1 END)/COUNT(*),1) AS win_rate_pct,
+       ROUND(AVG(excess_ret),2) AS avg_excess
+FROM calls_flat
+WHERE hold_days=20 AND is_pending=false
+GROUP BY direction`},
+  {label:"被喊最多次的標的 Top 15", sql:
+`SELECT ticker,
+       COUNT(DISTINCT analyst) AS n_analysts,
+       COUNT(*) AS n_rows
+FROM calls_flat
+WHERE hold_days=20
+GROUP BY ticker
+ORDER BY n_rows DESC
+LIMIT 15`},
+];
+
+const exDiv = document.getElementById('examples');
+EXAMPLES.forEach(e=>{
+  const c = document.createElement('span');
+  c.className='chip'; c.textContent=e.label;
+  c.onclick=()=>{ document.getElementById('sql').value=e.sql;
+    window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}); };
+  exDiv.appendChild(c);
+});
+
+async function runSql(){
+  const btn=document.getElementById('run'), out=document.getElementById('out'),
+        err=document.getElementById('err'), meta=document.getElementById('meta');
+  const sql=document.getElementById('sql').value;
+  out.innerHTML=''; err.textContent=''; meta.textContent='查詢中…'; btn.disabled=true;
+  try{
+    const r=await fetch('/api/sql',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sql})});
+    const j=await r.json();
+    if(!r.ok){ err.textContent='⚠ '+(j.error||'查詢失敗'); meta.textContent=''; return; }
+    const kb=(j.scanned_bytes/1024).toFixed(1);
+    meta.textContent=`${j.rows.length} 列 · 掃描 ${kb} KB · ${j.ms} ms`;
+    if(!j.rows.length){ out.innerHTML='<p class="note">（無資料列）</p>'; return; }
+    let h='<div class="tbl-wrap"><table><thead><tr>';
+    j.columns.forEach(c=>h+=`<th>${esc(c)}</th>`);
+    h+='</tr></thead><tbody>';
+    j.rows.forEach(row=>{ h+='<tr>'; row.forEach(v=>h+=`<td>${esc(v??'')}</td>`); h+='</tr>'; });
+    h+='</tbody></table></div>';
+    out.innerHTML=h;
+  }catch(e){ err.textContent='⚠ 連線失敗：'+e.message; meta.textContent=''; }
+  finally{ btn.disabled=false; }
+}
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+</script>
+</body>
+</html>

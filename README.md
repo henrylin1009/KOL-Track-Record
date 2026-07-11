@@ -4,9 +4,9 @@
 turned every "buy this" into a backtestable trade, and ran the statistics honestly — the
 answer is *no, not a single one of them beats the market once you account for luck.*
 
-**🔗 Live site:** https://henrylin1009.github.io/kol-track-record/
+**🔗 Live site:** https://henrylin1009.github.io/KOL-Track-Record/
 
-[![Live site preview](docs/assets/en/1_hero.png)](https://henrylin1009.github.io/kol-track-record/)
+[![Live site preview](docs/assets/en/1_hero.png)](https://henrylin1009.github.io/KOL-Track-Record/)
 
 > *The live interface is in Traditional Chinese because the source data is Chinese-language
 > YouTube — the full pipeline (speech-to-text, LLM extraction, entity resolution) handles a

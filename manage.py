@@ -102,13 +102,14 @@ def remove(name: str) -> None:
         sys.exit(1)
 
 
-DEPLOY_DIR = ROOT / "deploy_site"          # 獨立小 git repo：只放 index.html
-DEPLOY_REPO = "kol-track-record"           # GitHub repo 名（第一次 deploy 自動建立）
+# 合併後的單一 repo：程式碼 + 成品站同在此，Pages 從 docs/ 出站
+DEPLOY_DIR = Path.home() / "Desktop" / "kol-track-record-src"   # 本機 clone 的 code+site repo
+DEPLOY_REPO = "KOL-Track-Record"                                # GitHub repo 名
 
 def deploy() -> None:
-    """把最新 index.html 發布到 GitHub Pages。
-    第一次執行：自動建 repo（gh repo create，public）+ 開 Pages；之後只是 commit+push。
-    需要：brew install gh && gh auth login（一次性）。"""
+    """把最新 index.html 發布到 GitHub Pages（合併 repo 的 docs/index.html）。
+    只做 copy → commit → push；repo 與 Pages 已建立好。
+    需要：gh 已登入（gh auth login，一次性）。"""
     import subprocess, shutil
     def sh(*cmd, cwd=None, ok_fail=False):
         r = subprocess.run(cmd, cwd=cwd or DEPLOY_DIR, capture_output=True, text=True)
@@ -122,35 +123,64 @@ def deploy() -> None:
         sys.exit("✗ 需要 GitHub CLI：brew install gh && gh auth login")
     if sh("gh", "auth", "status", cwd=ROOT, ok_fail=True).returncode != 0:
         sys.exit("✗ GitHub 尚未登入：終端機跑一次 `gh auth login`（選 GitHub.com → HTTPS → browser）")
+    if not (DEPLOY_DIR / ".git").exists():
+        sys.exit(f"✗ 找不到部署 repo：{DEPLOY_DIR}\n  請先 clone：git clone https://github.com/henrylin1009/{DEPLOY_REPO}.git \"{DEPLOY_DIR}\"")
 
-    first = not (DEPLOY_DIR / ".git").exists()
-    if first:
-        print("▶ 第一次發布：建立 deploy_site/ 小 repo…", flush=True)
-        DEPLOY_DIR.mkdir(exist_ok=True)
-        (DEPLOY_DIR / ".nojekyll").write_text("")   # 關掉 GitHub Pages 的 Jekyll 處理
-        sh("git", "init", "-b", "main")
-        if subprocess.run(["git", "config", "user.name"], capture_output=True).returncode != 0 \
-           or not subprocess.run(["git", "config", "user.name"], capture_output=True, text=True).stdout.strip():
-            sh("git", "config", "user.name", "Henry Lin")
-    shutil.copy2(src, DEPLOY_DIR / "index.html")
+    docs = DEPLOY_DIR / "docs"
+    docs.mkdir(exist_ok=True)
+    shutil.copy2(src, docs / "index.html")
     sh("git", "add", "-A")
     from datetime import datetime
     msg = f"publish {datetime.now():%Y-%m-%d %H:%M}"
     if sh("git", "commit", "-m", msg, ok_fail=True).returncode != 0:
         print("（內容沒變，不用重新發布）"); return
-    if first:
-        print(f"▶ 建立 GitHub repo：{DEPLOY_REPO}（public）…", flush=True)
-        sh("gh", "repo", "create", DEPLOY_REPO, "--public",
-           "--source", str(DEPLOY_DIR), "--remote", "origin", "--push")
-        print("▶ 開啟 GitHub Pages…", flush=True)
-        user = sh("gh", "api", "user", "-q", ".login").stdout.strip()
-        sh("gh", "api", f"repos/{user}/{DEPLOY_REPO}/pages", "-X", "POST",
-           "-f", "source[branch]=main", "-f", "source[path]=/", ok_fail=True)
-        print(f"✅ 上線！約 1–2 分鐘後可看：https://{user}.github.io/{DEPLOY_REPO}/")
-    else:
-        sh("git", "push")
-        user = sh("gh", "api", "user", "-q", ".login").stdout.strip()
-        print(f"✅ 已發布 → https://{user}.github.io/{DEPLOY_REPO}/（CDN 更新約 1 分鐘）")
+    sh("git", "push")
+    user = sh("gh", "api", "user", "-q", ".login").stdout.strip()
+    print(f"✅ 已發布 → https://{user}.github.io/{DEPLOY_REPO}/（CDN 更新約 1 分鐘）")
+
+
+import re as _re
+# 樣式拆開拼接，避免這行源碼本身命中自己的掃描（同步時會掃 staged diff）
+_SECRET_RE = _re.compile("|".join([
+    r"sk-[a-zA-Z0-9]{20}",
+    "aws_secret" + "_access_key",
+    "-----" + "BEGIN",
+    r"AKIA[0-9A-Z]{16}",
+]), _re.I)
+
+def sync_code() -> None:
+    """把本機源碼（.py/.html/.md/requirements）同步進 repo 夾 → 掃祕密 → commit → push。
+    只送該公開的原始碼，不碰 .env / 大檔（repo 的 .gitignore 也會擋）。
+    解決『deploy 只推 index.html、.py 源碼會漂移』的問題。一鍵讓 GitHub 反映最新程式碼。"""
+    import subprocess, shutil, fnmatch
+    from datetime import datetime
+    if not (DEPLOY_DIR / ".git").exists():
+        sys.exit(f"✗ 找不到 repo：{DEPLOY_DIR}")
+    def sh(*cmd, ok_fail=False):
+        r = subprocess.run(cmd, cwd=DEPLOY_DIR, capture_output=True, text=True)
+        if r.returncode != 0 and not ok_fail:
+            sys.exit(f"✗ {' '.join(cmd)}\n{r.stderr.strip() or r.stdout.strip()}")
+        return r
+    # 要同步的源碼型別（相對 ROOT 的頂層檔）；明確排除祕密檔
+    patterns = ("*.py", "*.html", "*.md", "requirements.txt", ".env.example")
+    skip = {".env", ".env.local"}
+    copied = []
+    for f in sorted(ROOT.iterdir()):
+        if not f.is_file() or f.name in skip:
+            continue
+        if any(fnmatch.fnmatch(f.name, p) for p in patterns):
+            shutil.copy2(f, DEPLOY_DIR / f.name)
+            copied.append(f.name)
+    print(f"▶ 同步 {len(copied)} 個源碼檔 → repo")
+    sh("git", "add", "-A")
+    # 提交前掃 staged diff 有沒有祕密
+    diff = sh("git", "diff", "--cached").stdout
+    if _SECRET_RE.search(diff):
+        sys.exit("✗ staged 內容偵測到疑似祕密，已中止（請檢查後手動處理）")
+    if sh("git", "commit", "-m", f"sync source {datetime.now():%Y-%m-%d %H:%M}", ok_fail=True).returncode != 0:
+        print("（源碼沒變，無需提交）"); return
+    sh("git", "push")
+    print("✅ 源碼已同步並推上 GitHub")
 
 
 REBUILD_STEPS = {   # step 名 → (說明, script)；all 依序全跑
@@ -190,6 +220,7 @@ if __name__ == "__main__":
     sub.add_parser("remove").add_argument("name")
     sub.add_parser("recalc").add_argument("name")
     sub.add_parser("deploy")
+    sub.add_parser("sync-code")
     sub.add_parser("rebuild").add_argument(
         "step", nargs="?", default="all", choices=["all", *REBUILD_STEPS])
     args = ap.parse_args()
@@ -204,5 +235,7 @@ if __name__ == "__main__":
         recalc(args.name)
     elif args.cmd == "deploy":
         deploy()
+    elif args.cmd == "sync-code":
+        sync_code()
     elif args.cmd == "rebuild":
         rebuild(args.step)

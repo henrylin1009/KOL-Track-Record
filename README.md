@@ -1,6 +1,16 @@
 # KOL Track Record Lab — Do Taiwan's Finance Influencers Actually Beat the Market?
 
-**Live site:** https://henrylin1009.github.io/kol-track-record/
+**In one sentence:** I scraped 4,500+ YouTube videos from 14 Taiwanese stock influencers,
+turned every "buy this" into a backtestable trade, and ran the statistics honestly — the
+answer is *no, not a single one of them beats the market once you account for luck.*
+
+**🔗 Live site:** https://henrylin1009.github.io/kol-track-record/
+
+[![Live site preview](docs/assets/screenshot.png)](https://henrylin1009.github.io/kol-track-record/)
+
+> *The interface is in Traditional Chinese because the source data is Chinese-language
+> YouTube — the full pipeline (speech-to-text, LLM extraction, entity resolution) handles
+> a non-English corpus end to end. This README walks through everything in English.*
 
 A rule-based backtesting and statistical-inference engine that evaluates **7,947 stock
 calls** made by **14 Taiwanese finance influencers (KOLs)** on YouTube, and asks one

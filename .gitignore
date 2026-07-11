@@ -18,4 +18,5 @@ __pycache__/
 .DS_Store
 *.log
 *.png
-!docs/assets/**/*.png   # 例外：README 用的成品截圖(含子資料夾)要進版控
+# 例外：README 用的成品截圖(含子資料夾)要進版控（註解須自成一行，否則白名單失效）
+!docs/assets/**/*.png

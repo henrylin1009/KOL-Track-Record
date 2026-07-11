@@ -6,11 +6,12 @@ answer is *no, not a single one of them beats the market once you account for lu
 
 **🔗 Live site:** https://henrylin1009.github.io/kol-track-record/
 
-[![Live site preview](docs/assets/screenshot.png)](https://henrylin1009.github.io/kol-track-record/)
+[![Live site preview](docs/assets/en/1_hero.png)](https://henrylin1009.github.io/kol-track-record/)
 
-> *The interface is in Traditional Chinese because the source data is Chinese-language
-> YouTube — the full pipeline (speech-to-text, LLM extraction, entity resolution) handles
-> a non-English corpus end to end. This README walks through everything in English.*
+> *The live interface is in Traditional Chinese because the source data is Chinese-language
+> YouTube — the full pipeline (speech-to-text, LLM extraction, entity resolution) handles a
+> non-English corpus end to end. The screenshots below are English renders of the same UI;
+> analyst names are left in Chinese, as they are proper names.*
 
 A rule-based backtesting and statistical-inference engine that evaluates **7,947 stock
 calls** made by **14 Taiwanese finance influencers (KOLs)** on YouTube, and asks one
@@ -21,6 +22,27 @@ demonstrable skill?*
 **Romano–Wolf stepwise multiple-testing correction** (family-wise error control across
 all analysts × horizons), **0 of 14 survive.** Their apparent edge is a
 false-discovery artifact of a bull market plus momentum-chasing.
+
+---
+
+## What it looks like
+
+**Leaderboard** — every analyst scored on actual return, excess vs. the market, and a
+significance verdict. Note the verdict column: several read *"Raw-significant"* — none
+survive the multiple-testing correction.
+
+![Leaderboard](docs/assets/en/2_leaderboard.png)
+
+**Per-analyst deep dive** (click any row) — a three-part scorecard: strategy $ curve vs.
+buy-the-index, directional accuracy, and a "skill or luck?" breakdown with confidence
+intervals and Romano–Wolf verdicts. Hold period and long/short direction are adjustable.
+
+![Analyst card](docs/assets/en/4_card.png)
+
+**Head-to-head comparison** — pit analysts against each other on a common growth curve,
+each against their own per-call benchmark.
+
+![Comparison chart](docs/assets/en/3_compare.png)
 
 ---
 

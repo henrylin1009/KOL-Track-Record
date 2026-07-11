@@ -17,7 +17,7 @@ answer is *no, not a single one of them beats the market once you account for lu
 > non-English corpus end to end. The screenshots below are English renders of the same UI;
 > analyst names are left in Chinese, as they are proper names.*
 
-A rule-based backtesting and statistical-inference engine that evaluates **18,160 stock
+A rule-based backtesting and statistical-inference engine that evaluates **18,000+ stock
 calls** made by **14 Taiwanese finance influencers (KOLs)** on YouTube, and asks one
 honest question of each: *once you correct for multiple testing, does any of them have
 demonstrable skill?*
@@ -79,7 +79,7 @@ and a multiple-comparisons correction so that testing 14 people doesn't manufact
 | | |
 |---|---|
 | Analysts evaluated | 14 |
-| Stock calls backtested | 18,160 |
+| Stock calls backtested | 18,000+ |
 | YouTube transcripts indexed | ~4,500 |
 | Raw "significant" analysts | several |
 | **Survive Romano–Wolf correction** | **0** |
@@ -113,7 +113,7 @@ live deployment:
   the RAG Q&A agent and an interactive SQL playground.
 
 **Data layer — S3 + Athena.** Every call is flattened across five holding horizons into a
-94,177-row table (`export_calls.py`), stored as Parquet in **Amazon S3** and queried with
+~94,000-row table (`export_calls.py`), stored as Parquet in **Amazon S3** and queried with
 SQL through **Amazon Athena** (a serverless, scan-priced query engine over S3).
 
 **Compute — EC2 + IAM.** `server.py` (FastAPI + the vector-RAG Q&A agent) runs on an

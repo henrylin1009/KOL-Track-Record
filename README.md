@@ -4,7 +4,11 @@
 turned every "buy this" into a backtestable trade, and ran the statistics honestly — the
 answer is *no, not a single one of them beats the market once you account for luck.*
 
-**🔗 Live site:** https://henrylin1009.github.io/KOL-Track-Record/
+**🔗 Live site (permanent):** https://henrylin1009.github.io/KOL-Track-Record/
+
+**⚡ Full live demo (AWS EC2 — SQL playground + AI Q&A):** http://13.238.128.215:8000
+&nbsp;·&nbsp; [`/sql`](http://13.238.128.215:8000/sql) — run your own SQL against the data via Athena
+<sub>Temporary demo on a free-tier instance; may be offline. The permanent site above always works.</sub>
 
 [![Live site preview](docs/assets/en/1_hero.png)](https://henrylin1009.github.io/KOL-Track-Record/)
 

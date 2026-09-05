@@ -1,7 +1,7 @@
 # 專案架構地圖
 
 > 一句話：用真實股價驗證「台灣財經 YouTube KOL 喊的單，能不能賺贏大盤」，再做成互動網站讓散戶自己判斷。
-> 結論（誠實的負面結果）：用同一把嚴格的尺掃 13 人，**多重比較校正後無一人穩定贏大盤**。
+> 結論（誠實的負面結果）：用同一把嚴格的尺掃 14 人，**多重比較校正後無一人穩定贏大盤**。
 
 本檔只描述「**現役核心**」。研究歷程中被否證/取代的腳本已移到 [`archive/`](archive/)（移動非刪除，保留研究證據）——說明見 [`archive/README.md`](archive/README.md)。
 
@@ -28,7 +28,7 @@ generate_site.py         ──import──>  verdict_rules.py
 
 | 層 | 狀態 | 說明 |
 |----|------|------|
-| ③ 判決引擎 | ✅ **已統一** | `build_calendar_multi.py` 一個 `build_curve`/統計/Romano-Wolf 跑全部 13 人，只讀 `calendar_multi.json` + 價格快取 |
+| ③ 判決引擎 | ✅ **已統一** | `build_calendar_multi.py` 一個 `build_curve`/統計/Romano-Wolf 跑全部 14 人，只讀 `calendar_multi.json` + 價格快取 |
 | ② 抽取/載入 | ✅ **已遷移（2026-07-01）** | KOL 全改統一抽取，數字已定版並重鎖 baseline（郭哲榮 $293→$241、謝晨彥 $339→$213…雙向移動，但**結論不變且更誠實**：Romano-Wolf 存活仍 = 0）。被取代的**個人專屬抽取器已歸檔**（見 archive/） |
 | ④ 網站資料源 | 📊 **部分收斂** | `generate_site.py` 仍讀數個 gooaye/dac 補充 JSON（因子拆解、預測力表、DAC 淨值）——**引擎不算的補充描述**，非判決。要不要併進 calendar_multi.json 是「網站內容決策」，非清理 |
 
@@ -76,14 +76,14 @@ generate_site.py         ──import──>  verdict_rules.py
 
 | 檔案 | 幹嘛 |
 |------|------|
-| `build_calendar_multi.py` | ★★★ 全站核心引擎。calendar-time 固定資金 + call 頻率加權 + 看空持現金 + 週分批 t；13 人 × 5 天期 → `calendar_multi.json` |
+| `build_calendar_multi.py` | ★★★ 全站核心引擎。calendar-time 固定資金 + call 頻率加權 + 看空持現金 + 週分批 t；14 人 × 5 天期 → `calendar_multi.json` |
 | `rw_core.py` | ★ Romano-Wolf stepdown 多重檢定（circular block bootstrap，控 FWER）— 最終判決法 |
 | `verdict_rules.py` | 同一張規則表對所有人生成中性判決句（消滅手寫特例） |
 | `analysts.py` | ★ 分析師註冊表 + 各型 Call loader。**加新人＝填一筆 dict，不改引擎** |
 | `survivorship_test.py` | ★ 方法論招牌：證明早期看似找到的 alpha 大半是 survivorship bias |
 | 📊 `backtest_gooaye_factor/kolstyle/predict/v2.py` | 股癌**補充描述**（因子拆解／預測力表／三版本淨值）；主判決已用統一引擎，這些只餵網站的補充區塊 |
 | 📊 `backtest_dac.py` / `backtest_dac_equity.py` | DAC 淨值圖（補充）；命中率判決已由引擎 `direction_hit_rate` 涵蓋 |
-| `calendar_multi.json` | ★ 全站主資料檔：13 人 × 5 天數的所有結果 |
+| `calendar_multi.json` | ★ 全站主資料檔：14 人 × 5 天數的所有結果 |
 
 ### 段④ 做成網站
 
@@ -107,7 +107,7 @@ generate_site.py         ──import──>  verdict_rules.py
 
 ```bash
 source .venv/bin/activate
-python build_calendar_multi.py   # 引擎 → calendar_multi.json（印出 13 人 × 5 天期表）
+python build_calendar_multi.py   # 引擎 → calendar_multi.json（印出 14 人 × 5 天期表）
 python generate_site.py          # → index.html
 open index.html
 ```
